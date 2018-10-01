@@ -7,6 +7,19 @@ output: github_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library (tidyverse)
+library(tidyverse)
+library(ggridges)
+```
+
+### Problem 1.1: Read and clean the data as instructed
+
+```{r}
+nyc_transit = 
+  read_csv("./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv",col_names = TRUE) %>%
+  
+  janitor::clean_names() %>% 
+  
+ select(line:entry, vending, ada) %>% 
+  mutate(entry = recode(entry, YES = "TRUE", NO = "FALSE"))
 ```
 
