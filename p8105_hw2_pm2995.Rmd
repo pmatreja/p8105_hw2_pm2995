@@ -11,7 +11,7 @@ library(tidyverse)
 library(ggridges)
 ```
 
-### Problem 1.1: Read and clean the data as instructed
+### Problem 1.1: Read and clean the data as insructed
 
 ```{r}
 nyc_transit = 
@@ -23,3 +23,24 @@ nyc_transit =
   mutate(entry = recode(entry, YES = "TRUE", NO = "FALSE"))
 ```
 
+### Problem 1.2 
+Describing the data set
+
+Dataset focuses on NYC transit data and has collection of information related to each subway station entrance and exit. We have edited some information from the raw data and now our data set has variables; line, station name, station lattitude, longitude, route 1 to 11, entrance type, entry, vending and compliance with ADA.
+
+Steps used for cleaning the data:
+
+* Read in the data
+
+* Cleaned the variable names using clean_names of janitor function which converted them into all lower snake case.
+
+* Used select to retain the variable names as per instructions.
+
+* Used mutate to recode the entry variable from character(YES/NO) to logical(TRUE/FALSE).
+
+```{r}
+nrow(nyc_transit)
+ncol(nyc_transit)
+```
+
+The dimensions of the data set are  `r nrow(nyc_transit)` x `r ncol(nyc_transit)`. No, the data doesn't look tidy because the data for the route variable are spread across eleven columns and is difficult to read. There can be a better way to present it. 
