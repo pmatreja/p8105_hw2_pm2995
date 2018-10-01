@@ -138,3 +138,40 @@ trash_wheel_data = read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xls
   mutate(sports_balls = as.integer(sports_balls))
 ```
 
+### Problem 2.2: Reading and cleaning precipitation data for 2016 and 2017
+
+```{r}
+precipitation_2016 =
+  read_excel(path = "./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", sheet = "2016 Precipitation", range = "A2:B14", col_names = TRUE) %>%
+  janitor::clean_names() %>% 
+  filter(!is.na(total)) %>% 
+  mutate(year = 2016) %>% 
+  rename(precipitation = total)
+
+precipitation_2017 =
+  read_excel(path = "./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", sheet = "2017 Precipitation", range = "A2:B14", col_names = TRUE) %>% 
+  janitor::clean_names() %>% 
+  filter(!is.na(total)) %>% 
+  mutate(year = 2017) %>% 
+  rename(precipitation = total)
+
+```
+
+
+Combining datasets
+
+```{r}
+precipitation_combined = 
+  full_join(precipitation_2016, precipitation_2017) %>% 
+  mutate(month = month.name[month])
+```
+
+Also, stacking them using the bind_rows is also giving us the exact same result
+
+```{r}
+precipitation_combined_alternate = 
+  bind_rows(precipitation_2016, precipitation_2017) %>% 
+  mutate(month = month.name[month])
+```
+
+
