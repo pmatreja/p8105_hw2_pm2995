@@ -11,7 +11,7 @@ library(tidyverse)
 library(ggridges)
 ```
 
-### Problem 1.1: Read and clean the data as insructed
+### Problem 1.1: Read and clean the data as instructed
 
 ```{r}
 nyc_transit = 
@@ -43,4 +43,85 @@ nrow(nyc_transit)
 ncol(nyc_transit)
 ```
 
-The dimensions of the data set are  `r nrow(nyc_transit)` x `r ncol(nyc_transit)`. No, the data doesn't look tidy because the data for the route variable are spread across eleven columns and is difficult to read. There can be a better way to present it. 
+The dimensions of the data set are  `r nrow(nyc_transit)` x `r ncol(nyc_transit)`. No, the data doesn't look tidy because the data for the route variable are spread across eleven columns and is difficult to read. There can be a better way to present it. Using the gather function here can be helpful.
+
+### Problem 1.3: Answering the set of questions
+
+* How many distinct stations are there? Note that stations are identified both by name and by line (e.g. 125th St A/B/C/D; 125st 1; 125st 4/5); the distinct function may be useful here.
+
+
+```{r}
+nyc_transit %>%  
+  distinct(station_name, line, .keep_all = TRUE) %>% 
+  nrow()
+``` 
+
+Answer: No. of distinct stations = 465
+
+
+* How many stations are ADA compliant?
+
+```{r}
+  nyc_transit %>%
+  distinct(station_name, line, .keep_all = TRUE) %>% 
+  filter(ada == TRUE) %>% 
+  nrow()
+```
+
+Answer: No. of ADA compliant stations = 84
+
+
+* What proportion of station entrances / exits without vending allow entrance?
+
+```{r}
+{nyc_transit %>% 
+  filter(vending == "NO") %>% 
+  filter(entry == "TRUE") %>% 
+  nrow()} /
+  
+{nyc_transit %>% 
+  filter(vending == "NO") %>% 
+  nrow()}
+
+```
+
+I filtered all the stations for which vending is NO and entry = TRUE and divided it with the total stations for which vending is no.
+
+Answer: Proportion of station entrances / exits without vending that allow entrance = 0.3770492 or 37.7 % 
+
+
+### Problem 1.4: Reformating the data so that route number and route name are distinct variables
+
+```{r}
+nyc_transit_reformat = 
+  gather(nyc_transit, key = route_number, value = route_name, route1:route11) 
+
+nyc_transit_reformat
+```
+
+
+* How many distinct stations serve the A train? 
+
+```{r}
+  nyc_transit_reformat %>%
+  filter(route_name == "A") %>% 
+  distinct(station_name, line, route_name,.keep_all = TRUE) %>%  
+nrow()
+```
+
+Answer: Distinct stations that serve train A = 60
+
+
+* Of the stations that serve the A train, how many are ADA compliant?
+
+```{r}
+nyc_transit_reformat %>% 
+  filter(route_name == "A") %>%
+  distinct(station_name, line, route_name,.keep_all = TRUE) %>%
+  filter(ada == TRUE) %>%
+  nrow()
+```
+
+Answer: Of the stations that serve the train A, no. of stations that are ADA compliant are 17. 
+
+I have used .keep_all in last two code chunks with the distinct function because I wanted to keep rest of the variable data associated with the distinct stations for further use.
