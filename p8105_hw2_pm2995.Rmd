@@ -125,3 +125,16 @@ nyc_transit_reformat %>%
 Answer: Of the stations that serve the train A, no. of stations that are ADA compliant are 17. 
 
 I have used .keep_all in last two code chunks with the distinct function because I wanted to keep rest of the variable data associated with the distinct stations for further use.
+
+### Problem 2.1: Read and clean the Mr. Trash Wheel sheet
+
+
+```{r}
+library(readxl)
+trash_wheel_data = read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", sheet = "Mr. Trash Wheel", range = cell_cols("A:N"), col_names = TRUE) %>% 
+  janitor::clean_names() %>% 
+  filter(!(dumpster == "NA")) %>% 
+  mutate(sports_balls = round(sports_balls)) %>% 
+  mutate(sports_balls = as.integer(sports_balls))
+```
+
