@@ -174,4 +174,30 @@ precipitation_combined_alternate =
   mutate(month = month.name[month])
 ```
 
+###Problem 2.3: Writing a paragraph about the data and answering certain questions.
+
+Data from the Mr. Trash Wheel sheet
+
+Mr. Trash Wheel is a water wheel vessel removing trash flowing down the Jones Fall river in Baltimore state. The original dataset describes the content and the amount of trash collected by the dumpster. The data is available by the date of collection of the trash. After doing the instructed modifications on the original dataset, the resulting dataset includes `r nrow(trash_wheel_data)` rows and `r ncol(trash_wheel_data)` columns. The key variables included are the dumpster number, date when it was collected, amount of trash (by weight and volume), the content (plastics, grocery bags, sports balls, cigarette buts, etc.) and the approximate number of homes powered using the energy generated from the trash. The dataset includes data from 16th May 2014 till 19th August 2017. During this period the total amount of litter that was collected is `r trash_wheel_data %>% filter(!(month == "Grand Total")) %>% pull(weight_tons) %>% sum()`. Looking at the data, it appears that cigarette butts are the most common form of trash and glass bottles the least common.
+
+The precipitation data sets for the year 2016 has `r nrow(precipitation_2016)` rows and `r ncol(precipitation_2016)` columns. The mean precipitation for the year 2016 is `r mean(precipitation_2016$precipitation)`. The precipitation data sets for the year 2017 has `r nrow(precipitation_2017)` rows and `r ncol(precipitation_2017)` column. The mean precipitation for the year 2017 is `r mean(precipitation_2017$precipitation)`. The key variables for both the datasets are month, corresponding precipitation for that month and the year. The combined precipitation dataset for 2016 and 2017 includes `r nrow(precipitation_combined)` observations for `r ncol(precipitation_combined)` variables.  
+
+* For available data, what was the total precipitation in 2017? 
+
+```{r}
+sum(precipitation_2017$precipitation)
+```
+
+Answer: The total precipitation in 2017 is `r sum (precipitation_2017$precipitation)`
+
+* What was the median number of sports balls in a dumpster in 2016?
+
+```{r}
+  trash_wheel_data %>%  
+  filter(year == 2016) %>% 
+  pull(sports_balls) %>% 
+  median(na.rm = TRUE)
+```
+
+Answer: The median number of sports balls in a dumpster in 2016 are 26.
 
