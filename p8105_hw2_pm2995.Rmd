@@ -282,3 +282,70 @@ brfss_reformat = brfss_smart2010 %>%
   ) %>% 
   select(year, state, county, excellent, very_good, good, fair, poor, excellent_or_very_good)
 ```
+
+
+###Problem 3.2: Answering the specific questions
+
+
+####Problem 3.2.1
+
+* How many unique locations are included in the dataset?
+
+Answer: 
+The code chunk below gives us the number of unique locations. I have used distinct function to remove the duplicate rows and nrow to get the total number of unique locations:
+```{r}
+brfss_reformat %>% 
+  janitor::clean_names() %>%
+  distinct(state, county) %>% 
+  nrow()
+```
+ 
+404 unique locations are represented
+ 
+
+* Is every state represented?
+
+Answer:
+The code chunk below creates a new dataframe that gives us the information about the number of states represented. I also checked the states that were represented by viewing the brfss_states using view(brfss_states).
+```{r}
+brfss_states = 
+  brfss_reformat %>% 
+  janitor::clean_names() %>%
+  distinct(state) 
+
+nrow(brfss_states)
+```
+
+It has 51 observations, that include 50 states and federal district of Columbia(DC).
+
+
+* What state is observed the most?
+
+Answer: 
+
+The code below uses the data from the brfss_reformat to count the number of states and displays them in descending order by using the arrange function. 
+
+```{r}
+brfss_reformat %>% 
+  janitor::clean_names() %>%
+  count(state) %>% 
+  arrange(desc(n, state))
+```
+
+NJ is observed the most.
+
+
+####Problem 3.2.2
+
+* In 2002, what is the median of the “Excellent” response value?
+
+Answer: 
+The code below keeps only the rows with from the year 2002 and takes the median of the excellent values. I have used na.rm = TRUE in case of there are missing values, the median won't take them into consideration before computing.
+
+```{r}
+  filter(brfss_reformat, year == 2002) %>% 
+  pull(excellent) %>% 
+  median(na.rm = TRUE)
+```
+
+Median of "Excellent response value" is 23.6
