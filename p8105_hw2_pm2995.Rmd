@@ -252,3 +252,15 @@ The code chunk below keeps all the rows that contained data for the year 2016. I
 
 The median number of sports balls in a dumpster in 2016 are 26.
 
+###Problem 3 
+
+The code chunk below installs and loads the dataset package required for the problem:
+
+# install.packages("devtools")
+```{r}
+devtools::install_github("p8105/p8105.datasets")
+library(p8105.datasets)
+data("brfss_smart2010")
+```
+
+
