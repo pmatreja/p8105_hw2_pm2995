@@ -349,3 +349,19 @@ The code below keeps only the rows with from the year 2002 and takes the median 
 ```
 
 Median of "Excellent response value" is 23.6
+
+####Problem 3.2.3
+
+Make a histogram of “Excellent” response values in the year 2002.
+
+Answer:
+The code below keeps the rows from brfss_reformat that had values from the year 2002 and makes a histogram of the correspnding excellent response values. I have used some color and fill options to make the histogram look better. Also, I have added labels here for x axis and a title for the histogram.
+
+```{r}
+filter(brfss_reformat, year == 2002) %>% 
+  ggplot(., aes(x = excellent)) + 
+  geom_histogram(color = "white", fill = "black") +
+    labs(title = "Histogram for excellent response values in 2002", x = "Excellent Response Values")
+```
+
+From the histogram, it can be clearly seen that there is a wide range of excellent response values. From approximately 9 till 43. There are two major peaks at approximately 18 and 24. 
