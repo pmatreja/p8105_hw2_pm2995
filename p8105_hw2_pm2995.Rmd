@@ -8,10 +8,13 @@ output: github_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
-library(ggridges)
+options(tibble.print_min = 3)
 ```
 
 ### Problem 1.1: Read and clean the data as instructed
+
+The code below imports the data from the .csv file, cleans the variable names, selects the column names that are going to be kept in the resulting data frame and mutates a variable to recode it.
+
 
 ```{r}
 nyc_transit = 
@@ -23,32 +26,44 @@ nyc_transit =
   mutate(entry = recode(entry, YES = "TRUE", NO = "FALSE"))
 ```
 
+I have decribed all the steps used for the above code chunk in more detail under Problem 1.2 as it specifically asked for it there. 
+
 ### Problem 1.2 
-Describing the data set
+Describing the data set and data cleaning steps so far
 
 Dataset focuses on NYC transit data and has collection of information related to each subway station entrance and exit. We have edited some information from the raw data and now our data set has variables; line, station name, station lattitude, longitude, route 1 to 11, entrance type, entry, vending and compliance with ADA.
 
-Steps used for cleaning the data:
 
-* Read in the data
+I want to specify that throughout the below mentioned steps I have used pipe operator ( %>%) to use the result of one function call (part on the left of the %>%) as the first argument of the next function call (part on right of the %>%) . Here are the steps I used for cleaning the data:
 
-* Cleaned the variable names using clean_names of janitor function which converted them into all lower snake case.
+1.  Used read_csv for importing the csv file containing information on NYC transit entrance and exit. The csv function used is from the readr package. The first argument in the read_csv is the path to the data. I have used the relative path to to navigate from the current working directory as they are portable and if I share this with someone it ensures reproducibility of the code. I used view in my console window to confirm if there were no unexpected results from the data importing step.
 
-* Used select to retain the variable names as per instructions.
+2. After importing the data, I have cleaned the variable names using janitor::clean_names function which converted all column names into lower snake case.
 
-* Used mutate to recode the entry variable from character(YES/NO) to logical(TRUE/FALSE).
+3. I used select to retain the variable names as instructed in the problem. We are doing this step to de-clutter and keep only the subset of columns that will be useful to us.
+
+4. Further, I used mutate to recode the entry variable from character(YES/NO) to logical(TRUE/FALSE).
+
+The code chunk below generated the number of rows and columns in the nyc_transit data frame.
+I have also written the same in inline R code form.
 
 ```{r}
 nrow(nyc_transit)
 ncol(nyc_transit)
 ```
 
-The dimensions of the data set are  `r nrow(nyc_transit)` x `r ncol(nyc_transit)`. No, the data doesn't look tidy because the data for the route variable are spread across eleven columns and is difficult to read. There can be a better way to present it. Using the gather function here can be helpful.
+The dimensions of the data set are  `r nrow(nyc_transit)` x `r ncol(nyc_transit)`. 
+
+* Are these data tidy?
+
+No, the data doesn't look tidy because the data for the route variable are spread across eleven columns and is difficult to read. There can be a better way to present it. Using the gather function here can be helpful.
 
 ### Problem 1.3: Answering the set of questions
 
-* How many distinct stations are there? Note that stations are identified both by name and by line (e.g. 125th St A/B/C/D; 125st 1; 125st 4/5); the distinct function may be useful here.
+1. How many distinct stations are there? Note that stations are identified both by name and by line (e.g. 125th St A/B/C/D; 125st 1; 125st 4/5); the distinct function may be useful here.
 
+Answer:
+The code below generated the distinct stations that are identified by both station name and line. I used distinct function here that retains only the unique rows which can determined by the variables we use along with it. Since distinct stations are identified by both name and by line, I used these two variables with distinct. .keep_all = TRUE was used to keep all the variables in the data.
 
 ```{r}
 nyc_transit %>%  
@@ -56,10 +71,14 @@ nyc_transit %>%
   nrow()
 ``` 
 
-Answer: No. of distinct stations = 465
+No. of distinct stations = 465
 
 
-* How many stations are ADA compliant?
+
+2. How many stations are ADA compliant?
+
+Answer:
+The code below generated the ADA compliant stations. A part of explanation for the code is same as in the previous code chunk. I have used filter to specifically choose the ada == TRUE values that indicate that the entrance/exit is ada compliant. Further on, I have just used the nrow to determine the number of such entries. 
 
 ```{r}
   nyc_transit %>%
@@ -68,10 +87,12 @@ Answer: No. of distinct stations = 465
   nrow()
 ```
 
-Answer: No. of ADA compliant stations = 84
+No. of ADA compliant stations = 84
 
+3. What proportion of station entrances / exits without vending allow entrance?
 
-* What proportion of station entrances / exits without vending allow entrance?
+Answer: 
+I used the code chunk below to generate the proportion of station entrances/exits without vending that allow entrance. I filtered all the entrances/ exits for which vending is NO and entry = TRUE and divided it with the total stations for which vending is NO. I calculated the number of rows in each part using the nrow function:
 
 ```{r}
 {nyc_transit %>% 
@@ -85,12 +106,21 @@ Answer: No. of ADA compliant stations = 84
 
 ```
 
-I filtered all the stations for which vending is NO and entry = TRUE and divided it with the total stations for which vending is no.
+Alternatively, I also figured out another way which requires less coding steps to go ahead with this problem with the code chunk below:
 
-Answer: Proportion of station entrances / exits without vending that allow entrance = 0.3770492 or 37.7 % 
+```{r}
+no_vending = nyc_transit %>% 
+  filter(vending == "NO")  
+  no_vending_entrance = mean(no_vending$entry == TRUE)
+```
 
+I created a dataframe where I kept all the stations entrances/ exits  without vending. I further took the mean of the logical vector (entry ==TRUE) to get the proportion of station entrances / exits without vending that allow entrance.
+
+Proportion of station entrances / exits without vending that allow entrance = 0.3770492 or 37.7 %
 
 ### Problem 1.4: Reformating the data so that route number and route name are distinct variables
+
+Route data was spread across eleven columns which corresponds to route names and route number. I used gather to tidy the data, which converted it from the wide to the long format and saved it into a new data frame nyc_data_reformat. Now the data looks so much better!
 
 ```{r}
 nyc_transit_reformat = 
@@ -102,33 +132,38 @@ nyc_transit_reformat
 
 * How many distinct stations serve the A train? 
 
+Answer:
+I used the nyc_transit_reformat data frame created from the previous code chunk to answer this question as I had to specifically use the rows that had route_name == A. I filtered those rows and use the distinct function with variables station_name and line to just keep the distinct station names. Using nrow gave me the answer to the number of distinct stations that serve the Train A.
+
 ```{r}
-  nyc_transit_reformat %>%
+  nyc_transit_reformat %>% 
   filter(route_name == "A") %>% 
-  distinct(station_name, line, route_name,.keep_all = TRUE) %>%  
+  distinct(station_name, line, .keep_all = TRUE) %>% 
 nrow()
 ```
 
-Answer: Distinct stations that serve train A = 60
+Distinct stations that serve train A = 60
 
+I have used .keep_all in this and next code chunk with the distinct function because I wanted to keep rest of the variable data associated with the distinct stations for further use.
 
 * Of the stations that serve the A train, how many are ADA compliant?
 
+Answer:
+Following the same initial steps as in previous code chunk, I have added another argument to filter to retain the rows which indicated that the station entrance/ exit was ada compliant.
+
 ```{r}
 nyc_transit_reformat %>% 
-  filter(route_name == "A") %>%
-  distinct(station_name, line, route_name,.keep_all = TRUE) %>%
-  filter(ada == TRUE) %>%
+  filter(route_name == "A", ada == TRUE) %>%
+  distinct(station_name, line, .keep_all = TRUE) %>% 
   nrow()
 ```
 
-Answer: Of the stations that serve the train A, no. of stations that are ADA compliant are 17. 
+Of the stations that serve the train A, no. of stations that are ADA compliant are 17. 
 
-I have used .keep_all in last two code chunks with the distinct function because I wanted to keep rest of the variable data associated with the distinct stations for further use.
 
 ### Problem 2.1: Read and clean the Mr. Trash Wheel sheet
 
-
+The code chunk below imports the specific data from the xlsx file in and performs some data manipulation steps:
 ```{r}
 library(readxl)
 trash_wheel_data = read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", sheet = "Mr. Trash Wheel", range = cell_cols("A:N"), col_names = TRUE) %>% 
@@ -136,34 +171,47 @@ trash_wheel_data = read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xls
   filter(!(dumpster == "NA")) %>% 
   mutate(sports_balls = round(sports_balls)) %>% 
   mutate(sports_balls = as.integer(sports_balls))
+
+trash_wheel_data
 ```
 
+I used read_excel from readxl package for importing the xlsx file containing information about the healthy harbor water wheel. The first argument in the read_excel is the path to the data. I have used the relative path to to navigate from the current working directory as they are portable and if I share this with someone it ensures reproducibility of the code. Along with path, I have used sheet argument to specify the sheet in the xlsx file that contained the data I want to use and further also specified the range of columns I wanted to keep using 'range' function. I used view in my console window to confirm if there were no unexpected results from the data importing step. After importing the data, I cleaned the variable names using janitor::clean_names function which converted all column names into lower snake case.
+
+I used filter with ! to remove the rows that didn't contain any dumpster specific information. Further, I used mutate to change the variable sports_balls using function round to round the number of sports balls to nearest integer and converted it to an integer variable using as.integer function.
+
+
 ### Problem 2.2: Reading and cleaning precipitation data for 2016 and 2017
+
+The code chunk below imports the specfic sheet data from the xlsx file in and performs some data manipulation steps:
 
 ```{r}
 precipitation_2016 =
   read_excel(path = "./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", sheet = "2016 Precipitation", range = "A2:B14", col_names = TRUE) %>%
   janitor::clean_names() %>% 
-  filter(!is.na(total)) %>% 
-  mutate(year = 2016) %>% 
-  rename(precipitation = total)
-
+  rename(precipitation = total) %>% 
+  filter(!is.na(precipitation)) %>% 
+  mutate(year = 2016)
+  
 precipitation_2017 =
   read_excel(path = "./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", sheet = "2017 Precipitation", range = "A2:B14", col_names = TRUE) %>% 
   janitor::clean_names() %>% 
-  filter(!is.na(total)) %>% 
-  mutate(year = 2017) %>% 
-  rename(precipitation = total)
-
+  rename(precipitation = total) %>% 
+  filter(!is.na(precipitation)) %>% 
+  mutate(year = 2017)
+  
 ```
 
+Here again I have used read_excel for importing the xlsx file containing information about the healthy harbor water wheel. I have described its arguments already in the text of previous code chunk. While importing the data, I have specified the respective sheets for 2016 and 2017 precipitation data in xlsx file. I have removed the rows for which precipitation was na and added a new variable year in both the dataframes. I have also renamed the 'total' column. Now it os called 'precipitation' as I think this is a more reasonable variable name.
 
-Combining datasets
+##Combining datasets
 
+The code chunk below combines the two precipitation dataframes from 2016 and 2017 using the full join:
 ```{r}
 precipitation_combined = 
   full_join(precipitation_2016, precipitation_2017) %>% 
   mutate(month = month.name[month])
+
+precipitation_combined
 ```
 
 Also, stacking them using the bind_rows is also giving us the exact same result
@@ -178,26 +226,29 @@ precipitation_combined_alternate =
 
 Data from the Mr. Trash Wheel sheet
 
-Mr. Trash Wheel is a water wheel vessel removing trash flowing down the Jones Fall river in Baltimore state. The original dataset describes the content and the amount of trash collected by the dumpster. The data is available by the date of collection of the trash. After doing the instructed modifications on the original dataset, the resulting dataset includes `r nrow(trash_wheel_data)` rows and `r ncol(trash_wheel_data)` columns. The key variables included are the dumpster number, date when it was collected, amount of trash (by weight and volume), the content (plastics, grocery bags, sports balls, cigarette buts, etc.) and the approximate number of homes powered using the energy generated from the trash. The dataset includes data from 16th May 2014 till 19th August 2017. During this period the total amount of litter that was collected is `r trash_wheel_data %>% filter(!(month == "Grand Total")) %>% pull(weight_tons) %>% sum()`. Looking at the data, it appears that cigarette butts are the most common form of trash and glass bottles the least common.
+Mr. Trash Wheel is a water wheel vessel removing trash flowing down the Jones Fall river in Baltimore state. The original dataset describes the content and the amount of trash collected by the dumpster. The data is available by the date of collection of the trash. After doing the instructed modifications on the original dataset, the resulting dataset includes `r nrow(trash_wheel_data)` rows and `r ncol(trash_wheel_data)` columns. The last row has Grand total, so we can exclude that one row from counting the total number of observations. The key variables included are the dumpster number, date when it was collected, amount of trash (by weight and volume), the content (plastics, grocery bags, sports balls, cigarette buts, etc.) and the approximate number of homes powered using the energy generated from the trash. The dataset includes data from 16th May 2014 till 19th August 2017. During this period the total amount of litter that was collected is `r trash_wheel_data %>% filter(!(month == "Grand Total")) %>% pull(weight_tons) %>% sum()`. Looking at the data, it appears that cigarette butts are the most common form of trash and glass bottles the least common. The average amount of cigarette butts that were collected are `r trash_wheel_data %>% filter(!(month == "Grand Total")) %>% pull(cigarette_butts) %>% mean()`. The average amount of glass bottles that were collected are  `r trash_wheel_data %>% filter(!(month == "Grand Total")) %>% pull(glass_bottles) %>% mean()`. The approximate total number of homes that were powered by using the energy generated by the water wheel vessel are `r trash_wheel_data %>% filter(!(month == "Grand Total")) %>% pull(homes_powered) %>% sum()`.
 
 The precipitation data sets for the year 2016 has `r nrow(precipitation_2016)` rows and `r ncol(precipitation_2016)` columns. The mean precipitation for the year 2016 is `r mean(precipitation_2016$precipitation)`. The precipitation data sets for the year 2017 has `r nrow(precipitation_2017)` rows and `r ncol(precipitation_2017)` column. The mean precipitation for the year 2017 is `r mean(precipitation_2017$precipitation)`. The key variables for both the datasets are month, corresponding precipitation for that month and the year. The combined precipitation dataset for 2016 and 2017 includes `r nrow(precipitation_combined)` observations for `r ncol(precipitation_combined)` variables.  The total precipitation in 2016 and 2017 was `r sum(precipitation_combined$precipitation)`.
 
-* For available data, what was the total precipitation in 2017? 
+1. For available data, what was the total precipitation in 2017? 
 
+Answer: The code chunk below gave me the sum for the total precpitation in 2017:
 ```{r}
 sum(precipitation_2017$precipitation)
 ```
 
 Answer: The total precipitation in 2017 is `r sum (precipitation_2017$precipitation)`
 
-* What was the median number of sports balls in a dumpster in 2016?
+2. What was the median number of sports balls in a dumpster in 2016?
 
+Answer:
+The code chunk below keeps all the rows that contained data for the year 2016. It further pulls the variable sports balls and then takes the median of it.
 ```{r}
   trash_wheel_data %>%  
   filter(year == 2016) %>% 
   pull(sports_balls) %>% 
-  median(na.rm = TRUE)
+  median
 ```
 
-Answer: The median number of sports balls in a dumpster in 2016 are 26.
+The median number of sports balls in a dumpster in 2016 are 26.
 
