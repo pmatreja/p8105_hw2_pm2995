@@ -379,4 +379,4 @@ I have used filter to include rows that have data for New York County or Queens 
   
 ```
 
-It can be clearly seen that the New york county has higher excellent response values for each year as compared to the queens county.
+It can be clearly seen that the New York county has higher excellent response values for each year as compared to the Queens county.
