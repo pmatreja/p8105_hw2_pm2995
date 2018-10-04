@@ -23,7 +23,7 @@ nyc_transit =
   janitor::clean_names() %>% 
   
  select(line:entry, vending, ada) %>% 
-  mutate(entry = recode(entry, YES = "TRUE", NO = "FALSE"))
+ mutate(entry = recode(entry, YES = "TRUE", NO = "FALSE"))
 ```
 
 I have decribed all the steps used for the above code chunk in more detail under Problem 1.2 as it specifically asked for it there. 
@@ -123,9 +123,8 @@ Route data was spread across eleven columns which corresponds to route names and
 
 ```{r}
 nyc_transit_reformat = 
-  gather(nyc_transit, key = route_number, value = route_name, route1:route11) 
-
-nyc_transit_reformat
+  gather(nyc_transit, key = route_number, value = route_name, route1:route11) %>% 
+  filter(!is.na(route_name))
 ```
 
 
@@ -165,7 +164,7 @@ Of the stations that serve the train A, no. of stations that are ADA compliant a
 The code chunk below imports the specific data from the xlsx file in and performs some data manipulation steps:
 ```{r}
 library(readxl)
-trash_wheel_data = read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", sheet = "Mr. Trash Wheel", range = cell_cols("A:N"), col_names = TRUE) %>% 
+trash_wheel_data = read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = "Mr. Trash Wheel", range = cell_cols("A:N"), col_names = TRUE) %>% 
   janitor::clean_names() %>% 
   filter(!(dumpster == "NA")) %>% 
   mutate(sports_balls = round(sports_balls)) %>% 
@@ -174,7 +173,7 @@ trash_wheel_data = read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xls
 trash_wheel_data
 ```
 
-I used read_excel from readxl package for importing the xlsx file containing information about the healthy harbor water wheel. The first argument in the read_excel is the path to the data. I have used the relative path to to navigate from the current working directory as they are portable and if I share this with someone it ensures reproducibility of the code. Along with path, I have used sheet argument to specify the sheet in the xlsx file that contained the data I want to use and further also specified the range of columns I wanted to keep using 'range' function. I used view in my console window to confirm if there were no unexpected results from the data importing step. After importing the data, I cleaned the variable names using janitor::clean_names function which converted all column names into lower snake case.
+I used read_excel from readxl package for importing the xlsx file containing information about the healthy harbor water wheel. The first argument in the read_excel is the path to the data. I have used the relative path to to navigate from the current working directory as they are portable and if I share this with someone it ensures reproducibility of the code. Along with path, I have used sheet argument to specify the sheet in the xlsx file that contained the data I want to use. Further, I also specified the range of columns I wanted to keep. I used view in my console window to confirm if there were no unexpected results from the data importing step. After importing the data, I cleaned the variable names using janitor::clean_names function which converted all column names into lower snake case.
 
 I used filter with ! to remove the rows that didn't contain any dumpster specific information. Further, I used mutate to change the variable sports_balls using function round to round the number of sports balls to nearest integer and converted it to an integer variable using as.integer function.
 
@@ -185,14 +184,14 @@ The code chunk below imports the specfic sheet data from the xlsx file in and pe
 
 ```{r}
 precipitation_2016 =
-  read_excel(path = "./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", sheet = "2016 Precipitation", range = "A2:B14", col_names = TRUE) %>%
+  read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = "2016 Precipitation", range = "A2:B14", col_names = TRUE) %>%
   janitor::clean_names() %>% 
   rename(precipitation = total) %>% 
   filter(!is.na(precipitation)) %>% 
   mutate(year = 2016)
   
 precipitation_2017 =
-  read_excel(path = "./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", sheet = "2017 Precipitation", range = "A2:B14", col_names = TRUE) %>% 
+  read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = "2017 Precipitation", range = "A2:B14", col_names = TRUE) %>% 
   janitor::clean_names() %>% 
   rename(precipitation = total) %>% 
   filter(!is.na(precipitation)) %>% 
@@ -223,9 +222,7 @@ precipitation_combined_alternate =
 
 ###Problem 2.3: Writing a paragraph about the data and answering certain questions.
 
-Data from the Mr. Trash Wheel sheet
-
-Mr. Trash Wheel is a water wheel vessel removing trash flowing down the Jones Fall river in Baltimore state. The original dataset describes the content and the amount of trash collected by the dumpster. The data is available by the date of collection of the trash. After doing the instructed modifications on the original dataset, the resulting dataset includes `r nrow(trash_wheel_data)` rows and `r ncol(trash_wheel_data)` columns. The last row has Grand total, so we can exclude that one row from counting the total number of observations. The key variables included are the dumpster number, date when it was collected, amount of trash (by weight and volume), the content (plastics, grocery bags, sports balls, cigarette buts, etc.) and the approximate number of homes powered using the energy generated from the trash. The dataset includes data from 16th May 2014 till 19th August 2017. During this period the total amount of litter that was collected is `r trash_wheel_data %>% filter(!(month == "Grand Total")) %>% pull(weight_tons) %>% sum()`. Looking at the data, it appears that cigarette butts are the most common form of trash and glass bottles the least common. The average amount of cigarette butts that were collected are `r trash_wheel_data %>% filter(!(month == "Grand Total")) %>% pull(cigarette_butts) %>% mean()`. The average amount of glass bottles that were collected are  `r trash_wheel_data %>% filter(!(month == "Grand Total")) %>% pull(glass_bottles) %>% mean()`. The approximate total number of homes that were powered by using the energy generated by the water wheel vessel are `r trash_wheel_data %>% filter(!(month == "Grand Total")) %>% pull(homes_powered) %>% sum()`.
+Mr. Trash Wheel is a water wheel vessel removing trash flowing down the Jones Fall river in Baltimore state. The original dataset describes the content and the amount of trash collected by the dumpster. The data is available by the date of collection of the trash. After doing the instructed modifications on the original dataset, the resulting dataset includes `r nrow(trash_wheel_data)` rows and `r ncol(trash_wheel_data)` columns. The last row has Grand total, so we can exclude that one row from counting the total number of observations. The key variables included are the dumpster number, date when it was collected, amount of trash (by weight and volume), the content (plastics, grocery bags, sports balls, cigarette buts, etc.) and the approximate number of homes powered using the energy generated from the trash. The dataset includes data from 16th May 2014 till 28th July 2018. During this period the total amount of litter that was collected is `r trash_wheel_data %>% pull(weight_tons) %>% sum()`. Looking at the data, it appears that cigarette butts are the most common form of trash and glass bottles the least common. The total amount of cigarette butts that were collected are `r trash_wheel_data %>% pull(cigarette_butts) %>% sum()`. The total amount of glass bottles that were collected are  `r trash_wheel_data %>% pull(glass_bottles) %>% sum()`. The approximate total number of homes that were powered by using the energy generated by the water wheel vessel are `r trash_wheel_data %>% pull(homes_powered) %>% sum()`.
 
 The precipitation data sets for the year 2016 has `r nrow(precipitation_2016)` rows and `r ncol(precipitation_2016)` columns. The mean precipitation for the year 2016 is `r mean(precipitation_2016$precipitation)`. The precipitation data sets for the year 2017 has `r nrow(precipitation_2017)` rows and `r ncol(precipitation_2017)` column. The mean precipitation for the year 2017 is `r mean(precipitation_2017$precipitation)`. The key variables for both the datasets are month, corresponding precipitation for that month and the year. The combined precipitation dataset for 2016 and 2017 includes `r nrow(precipitation_combined)` observations for `r ncol(precipitation_combined)` variables.  The total precipitation in 2016 and 2017 was `r sum(precipitation_combined$precipitation)`.
 
