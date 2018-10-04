@@ -261,7 +261,7 @@ data("brfss_smart2010")
 
 Data importing, tidying and manipulation steps
 
-The code chunk below creates a dataframe using the data from the dataset package we loaded above and does some data manipulation as instructed in the problem using filter and select. I have also renamed variable names(locationabbr and locationdesc) so that they look more meaningful. I have further used the spread function to spread the response values across columns (Excellent to poor) and took their response values(proportions) from the data_value variable. I have used mutate to generate a new variable that gives the proportion of excellent or very good response values. Further on, select has been used to order the column in a suitable way. 
+The code chunk below creates a dataframe using the data from the dataset package we loaded above and does some data manipulation as instructed in the problem using filter and select. I have also renamed variable names(locationabbr and locationdesc) so that they look concise and meaningful. I have further used the spread function to spread the response values across columns (Excellent to poor) and took their response values(proportions) from the data_value variable. I have used mutate to generate a new variable that gives the proportion of excellent or very good response values. Further on, select has been used to order the column in a suitable way. 
 
 ```{r}
 brfss_reformat = brfss_smart2010 %>% 
@@ -282,6 +282,8 @@ brfss_reformat = brfss_smart2010 %>%
 
 
 ####Problem 3.2.1
+
+Using this dataset, do or answer the following:
 
 * How many unique locations are included in the dataset?
 
